@@ -32,4 +32,6 @@ public interface CourseDao {
 	public List<StudentDTO> getBatchwiseStudents() throws CourseException;
 	
 	public List<CourseDTO> seatAvailability() throws CourseException;
+	
+	public String withdrawStudent(int cid) throws StudentException;
 }

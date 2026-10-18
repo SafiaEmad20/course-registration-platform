@@ -15,6 +15,7 @@ import com.project.useCases.GetSeatAvailabilityUseCase;
 import com.project.useCases.RegisterStudentUseCase;
 import com.project.useCases.StudentLoginUseCase;
 import com.project.useCases.UpdateTotalSeatsUseCase;
+import com.project.useCases.WithdrawStudentUseCase;
 import com.project.useCases.UpdateCourseFee;
 import com.project.useCases.UpdateStudentUseCase;
 
@@ -150,7 +151,8 @@ public class Main {
 									System.out.println("---------------------------------------");
 									System.out.println("1. Update profile details");
 									System.out.println("2. Show all courses and availability");
-									System.out.println("3. Exit");
+									System.out.println("3. Withdraw from a course");
+									System.out.println("4. Exit");
 									
 									int y = sc.nextInt();
 									
@@ -162,9 +164,12 @@ public class Main {
 									case 2: GetSeatAvailabilityUseCase.main(null);
 										break;
 										
-									case 3: userSelect=3;
-											System.out.println("Thank you!");
-										break;
+									case 3: WithdrawStudentUseCase.main(null);
+									break;
+
+								case 4: userSelect=3;
+									System.out.println("Thank you!");
+									break;
 									
 									default: System.out.println("Invalid selection");
 										break;

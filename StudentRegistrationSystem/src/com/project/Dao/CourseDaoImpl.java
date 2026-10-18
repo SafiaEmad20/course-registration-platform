@@ -288,6 +288,30 @@ public class CourseDaoImpl implements CourseDao {
 	}
 
 	@Override
+	public String withdrawStudent(int cid) throws StudentException {
+		String message = "You are not registered in this course.";
+		int roll = StudentDaoImpl.studentloggedin;
+
+		try (Connection conn = DBUtil.provideConnection()) {
+
+			PreparedStatement ps = conn.prepareStatement("delete from course_student where cid = ? and roll = ?");
+			ps.setInt(1, cid);
+			ps.setInt(2, roll);
+
+			int x = ps.executeUpdate();
+
+			if (x > 0) {
+				message = "You have been withdrawn from the course successfully.";
+			}
+
+		} catch (SQLException e) {
+			throw new StudentException(e.getMessage());
+		}
+
+		return message;
+	}
+	
+	@Override
 	public List<Course> getAllCourses() throws CourseException {
 
 		List<Course> courseList = new ArrayList<>();
