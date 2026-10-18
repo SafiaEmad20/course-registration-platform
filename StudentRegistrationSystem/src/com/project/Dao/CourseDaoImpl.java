@@ -244,6 +244,13 @@ public class CourseDaoImpl implements CourseDao {
 		 			if (rsDup.next()) {
 		 			    throw new StudentException("Student is already registered in this course.");
 		 			}
+		 			PreparedStatement psCnt = conn.prepareStatement("select count(*) from course_student where cid=?");
+		 			psCnt.setInt(1, cid);
+		 			ResultSet rsCnt = psCnt.executeQuery();
+		 			rsCnt.next();
+		 			if (rsCnt.getInt(1) >= rs2.getInt("totalseats")) {
+		 			    throw new CourseException("This batch is full. No seats available.");
+		 			}	
 		 			
 
 		 			PreparedStatement ps3= conn.prepareStatement("insert into course_student values(?,?)");
