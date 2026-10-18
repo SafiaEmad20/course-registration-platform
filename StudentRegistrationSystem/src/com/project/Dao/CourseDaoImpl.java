@@ -333,6 +333,19 @@ public class CourseDaoImpl implements CourseDao {
 		
 		
 		try (Connection conn = DBUtil.provideConnection()){
+			if (totalSeats < 0) {
+			    return "Total seats cannot be negative.";
+			}
+			PreparedStatement psEnr = conn.prepareStatement(
+			        "select count(*) from course_student cs join course c on cs.cid = c.cid where c.cname = ? and c.batch = ?");
+			psEnr.setString(1, cname);
+			psEnr.setInt(2, batch);
+			ResultSet rsEnr = psEnr.executeQuery();
+			rsEnr.next();
+			int enrolled = rsEnr.getInt(1);
+			if (totalSeats < enrolled) {
+			    return "Cannot set total seats to " + totalSeats + ": " + enrolled + " students are already enrolled.";
+			}
 			
 			PreparedStatement ps =
 					conn.prepareStatement("UPDATE course SET totalseats = ? where cname = ? AND batch = ?");
