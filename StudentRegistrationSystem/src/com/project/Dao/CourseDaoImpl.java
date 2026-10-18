@@ -237,6 +237,13 @@ public class CourseDaoImpl implements CourseDao {
 		 		ResultSet rs2= ps2.executeQuery();
 		 		
 		 		if(rs2.next()) {
+		 			PreparedStatement psDup = conn.prepareStatement("select * from course_student where cid=? and roll=?");
+		 			psDup.setInt(1, cid);
+		 			psDup.setInt(2, roll);
+		 			ResultSet rsDup = psDup.executeQuery();
+		 			if (rsDup.next()) {
+		 			    throw new StudentException("Student is already registered in this course.");
+		 			}
 		 			
 
 		 			PreparedStatement ps3= conn.prepareStatement("insert into course_student values(?,?)");
