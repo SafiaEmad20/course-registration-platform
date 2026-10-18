@@ -16,8 +16,10 @@ import com.project.useCases.RegisterStudentUseCase;
 import com.project.useCases.StudentLoginUseCase;
 import com.project.useCases.UpdateTotalSeatsUseCase;
 import com.project.useCases.WithdrawStudentUseCase;
+import com.project.useCases.JoinWaitingListUseCase;
 import com.project.useCases.UpdateCourseFee;
 import com.project.useCases.UpdateStudentUseCase;
+
 
 public class Main {
 
@@ -152,7 +154,8 @@ public class Main {
 									System.out.println("1. Update profile details");
 									System.out.println("2. Show all courses and availability");
 									System.out.println("3. Withdraw from a course");
-									System.out.println("4. Exit");
+									System.out.println("4. Join the waiting list of a full course");
+									System.out.println("5. Exit");
 									
 									int y = sc.nextInt();
 									
@@ -167,7 +170,10 @@ public class Main {
 									case 3: WithdrawStudentUseCase.main(null);
 									break;
 
-								case 4: userSelect=3;
+									case 4: JoinWaitingListUseCase.main(null);
+									break;
+
+								case 5: userSelect=3;
 									System.out.println("Thank you!");
 									break;
 									

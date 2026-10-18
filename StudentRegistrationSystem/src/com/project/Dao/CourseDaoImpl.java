@@ -302,6 +302,30 @@ public class CourseDaoImpl implements CourseDao {
 
 			if (x > 0) {
 				message = "You have been withdrawn from the course successfully.";
+
+				PreparedStatement psNext = conn.prepareStatement(
+						"select w.wid, w.roll from waiting_list w where w.cid = ? "
+								+ "and w.roll not in (select roll from course_student where cid = ?) "
+								+ "order by w.wid limit 1");
+				psNext.setInt(1, cid);
+				psNext.setInt(2, cid);
+				ResultSet rsNext = psNext.executeQuery();
+
+				if (rsNext.next()) {
+					int wid = rsNext.getInt("wid");
+					int nextRoll = rsNext.getInt("roll");
+
+					PreparedStatement psAdd = conn.prepareStatement("insert into course_student values(?, ?)");
+					psAdd.setInt(1, cid);
+					psAdd.setInt(2, nextRoll);
+					psAdd.executeUpdate();
+
+					PreparedStatement psRemove = conn.prepareStatement("delete from waiting_list where wid = ?");
+					psRemove.setInt(1, wid);
+					psRemove.executeUpdate();
+
+					message += " The freed seat was given to the first student on the waiting list.";
+				}
 			}
 
 		} catch (SQLException e) {
@@ -309,6 +333,57 @@ public class CourseDaoImpl implements CourseDao {
 		}
 
 		return message;
+	}
+	@Override
+	public String joinWaitingList(int cid) throws StudentException {
+		int roll = StudentDaoImpl.studentloggedin;
+
+		try (Connection conn = DBUtil.provideConnection()) {
+
+			PreparedStatement psCourse = conn.prepareStatement("select totalseats from course where cid = ?");
+			psCourse.setInt(1, cid);
+			ResultSet rsCourse = psCourse.executeQuery();
+			if (!rsCourse.next()) {
+				return "Invalid Course ID.";
+			}
+			int totalSeats = rsCourse.getInt("totalseats");
+
+			PreparedStatement psEnrolled = conn.prepareStatement("select * from course_student where cid = ? and roll = ?");
+			psEnrolled.setInt(1, cid);
+			psEnrolled.setInt(2, roll);
+			if (psEnrolled.executeQuery().next()) {
+				return "You are already registered in this course.";
+			}
+
+			PreparedStatement psCount = conn.prepareStatement("select count(*) from course_student where cid = ?");
+			psCount.setInt(1, cid);
+			ResultSet rsCount = psCount.executeQuery();
+			rsCount.next();
+			if (rsCount.getInt(1) < totalSeats) {
+				return "This batch still has free seats. Ask the administrator to register you.";
+			}
+
+			PreparedStatement psWait = conn.prepareStatement("select * from waiting_list where cid = ? and roll = ?");
+			psWait.setInt(1, cid);
+			psWait.setInt(2, roll);
+			if (psWait.executeQuery().next()) {
+				return "You are already on the waiting list for this course.";
+			}
+
+			PreparedStatement psInsert = conn.prepareStatement("insert into waiting_list(cid, roll) values(?, ?)");
+			psInsert.setInt(1, cid);
+			psInsert.setInt(2, roll);
+			psInsert.executeUpdate();
+
+			PreparedStatement psPos = conn.prepareStatement("select count(*) from waiting_list where cid = ?");
+			psPos.setInt(1, cid);
+			ResultSet rsPos = psPos.executeQuery();
+			rsPos.next();
+			return "The batch is full. You have been added to the waiting list. Your position: " + rsPos.getInt(1);
+
+		} catch (SQLException e) {
+			throw new StudentException(e.getMessage());
+		}
 	}
 	
 	@Override
