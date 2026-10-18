@@ -34,4 +34,6 @@ public interface CourseDao {
 	public List<CourseDTO> seatAvailability() throws CourseException;
 	
 	public String withdrawStudent(int cid) throws StudentException;
+	
+	public String joinWaitingList(int cid) throws StudentException;
 }
