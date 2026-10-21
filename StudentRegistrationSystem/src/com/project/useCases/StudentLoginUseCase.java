@@ -1,18 +1,15 @@
 
 package com.project.useCases;
 
-import java.util.Scanner;
-
 import com.project.Dao.StudentDao;
 import com.project.Dao.StudentDaoImpl;
 import com.project.bean.Student;
 import com.project.exceptions.StudentException;
+import java.util.Scanner;
 
 public class StudentLoginUseCase {
 
-    public static Student login() {
-
-        Scanner sc = new Scanner(System.in);
+   public static Student login(Scanner sc) {
 
         System.out.println("Enter Username:");
         String uname = sc.next();
