@@ -9,7 +9,8 @@ import java.util.List;
 import com.project.bean.Student;
 import com.project.exceptions.StudentException;
 import com.project.utility.DBUtil;
-
+import com.project.bean.Course;
+import org.mindrot.jbcrypt.BCrypt;
 public class StudentDaoImpl implements StudentDao{
 	
 	static int studentloggedin;
@@ -27,7 +28,11 @@ public class StudentDaoImpl implements StudentDao{
 			
 			ps.setString(1, student.getName());
 			ps.setString(2, student.getEmail());
-			ps.setString(3, student.getPassword());
+			String hashedPassword = BCrypt.hashpw(
+            student.getPassword(),
+            BCrypt.gensalt(12)
+             );
+			ps.setString(3, hashedPassword);
 			ps.setString(4, student.getCourse());
 			
 			int x = ps.executeUpdate();
@@ -81,48 +86,51 @@ public class StudentDaoImpl implements StudentDao{
 		return message;
 	}
 
-	@Override
-	public Student loginStudent(String username, String password) throws StudentException {
-			
-		Student student = null;
-		
-		try(Connection conn = DBUtil.provideConnection()) {
-			
-			
-			PreparedStatement ps= conn.prepareStatement("select * from student where email = ? AND password = ?");			
-			
-			ps.setString(1, username);
-			ps.setString(2, password);
-			
-			ResultSet rs= ps.executeQuery();
-			
-			
-				if(rs.next()) {
-				
-				int r= rs.getInt("roll");
-				String n= rs.getString("name");
-				String e= rs.getString("email");
-				String p= rs.getString("password");
-				String c = rs.getString("coursename");
-				
-				studentloggedin = r;
-				
-			student=new Student(r, n, e, p, c);	
-				
-				
-			}else
-				throw new StudentException("Invalid Username or password.. ");
-			
-			
-			
-			
-		} catch (SQLException e) {
-			throw new StudentException(e.getMessage());
-		}
-		
-		return student;
-		
-	}
+
+@Override
+public Student loginStudent(String username, String password) throws StudentException {
+
+    Student student = null;
+
+    try (Connection conn = DBUtil.provideConnection()) {
+
+        PreparedStatement ps = conn.prepareStatement(
+            "SELECT * FROM student WHERE email = ?"
+        );
+
+        ps.setString(1, username);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+
+            int r = rs.getInt("roll");
+            String n = rs.getString("name");
+            String e = rs.getString("email");
+            String hashedPassword = rs.getString("password");
+            String c = rs.getString("coursename");
+
+            if (BCrypt.checkpw(password, hashedPassword)) {
+
+                studentloggedin = r;
+
+                student = new Student(r, n, e, hashedPassword, c);
+
+            } else {
+                throw new StudentException("Invalid Username or password.. ");
+            }
+
+        } else {
+            throw new StudentException("Invalid Username or password.. ");
+        }
+
+    } catch (SQLException e) {
+        throw new StudentException(e.getMessage());
+    }
+
+    return student;
+}
+
 
 	@Override
 	public Student getStudentObj() {
@@ -198,6 +206,50 @@ public class StudentDaoImpl implements StudentDao{
 		
 	}
 
+
+@Override
+public List<Course> getMyEnrolledCourses(int roll)
+        throws StudentException {
+
+    List<Course> courses = new ArrayList<>();
+
+    String sql = "SELECT c.* " +
+                 "FROM course c " +
+                 "JOIN course_student cs ON c.cid = cs.cid " +
+                 "WHERE cs.roll = ?";
+
+    try (Connection conn = DBUtil.provideConnection()) {
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setInt(1, roll);
+
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+
+            int cid = rs.getInt("cid");
+            String cname = rs.getString("cname");
+            int batch = rs.getInt("batch");
+            int fee = rs.getInt("fee");
+            int totalSeats = rs.getInt("totalseats");
+
+            Course course = new Course(
+                    cid, cname, batch, fee, totalSeats);
+
+            courses.add(course);
+        }
+
+    } catch (SQLException e) {
+        throw new StudentException(e.getMessage());
+    }
+
+    if (courses.isEmpty()) {
+        throw new StudentException(
+                "You are not enrolled in any courses yet.");
+    }
+
+    return courses;
+}
 
 	
 }
