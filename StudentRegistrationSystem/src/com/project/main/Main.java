@@ -19,7 +19,9 @@ import com.project.useCases.WithdrawStudentUseCase;
 import com.project.useCases.JoinWaitingListUseCase;
 import com.project.useCases.UpdateCourseFee;
 import com.project.useCases.UpdateStudentUseCase;
-
+import com.project.useCases.SearchCourseUseCase;
+import com.project.useCases.ViewMyCoursesUseCase;
+import com.project.useCases.EnrollInCourseUseCase;
 
 public class Main {
 
@@ -146,16 +148,22 @@ public class Main {
 						
 						while(userSelect!=3) {
 							
-							if(StudentLoginUseCase.main(null)==true) {
+							com.project.bean.Student student = StudentLoginUseCase.login();
+
+                              if (student != null) {
+                              int roll = student.getRoll();
 								
 								while(userSelect!=3){
 									System.out.println("Please select one of the options below");
 									System.out.println("---------------------------------------");
 									System.out.println("1. Update profile details");
 									System.out.println("2. Show all courses and availability");
-									System.out.println("3. Withdraw from a course");
-									System.out.println("4. Join the waiting list of a full course");
-									System.out.println("5. Exit");
+									System.out.println("3. Search for a course");
+									System.out.println("4. Enroll in a course");
+									System.out.println("5. View my enrolled courses");
+									System.out.println("6. Withdraw from a course");
+									System.out.println("7. Join the waiting list of a full course");
+									System.out.println("8. Exit");
 									
 									int y = sc.nextInt();
 									
@@ -166,14 +174,19 @@ public class Main {
 
 									case 2: GetSeatAvailabilityUseCase.main(null);
 										break;
-										
-									case 3: WithdrawStudentUseCase.main(null);
+									case 3:  SearchCourseUseCase.main(null);
+										break;	
+									case 4: EnrollInCourseUseCase.main(null);
+										break;
+									case 5: ViewMyCoursesUseCase.main(null);
+										break;
+									case 6: WithdrawStudentUseCase.main(null);
 									break;
 
-									case 4: JoinWaitingListUseCase.main(null);
+									case 7: JoinWaitingListUseCase.main(null);
 									break;
 
-								case 5: userSelect=3;
+								case 8: userSelect=3;
 									System.out.println("Thank you!");
 									break;
 									

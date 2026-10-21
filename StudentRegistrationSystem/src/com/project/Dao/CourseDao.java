@@ -36,4 +36,5 @@ public interface CourseDao {
 	public String withdrawStudent(int cid) throws StudentException;
 	
 	public String joinWaitingList(int cid) throws StudentException;
+	public List<Course> searchCourses(String keyword) throws CourseException;
 }

@@ -559,6 +559,42 @@ try (Connection conn = DBUtil.provideConnection()){
 		return dtos;
 	}
 
-	
+	    @Override
+    public List<Course> searchCourses(String keyword) throws CourseException {
+
+        List<Course> courseList = new ArrayList<>();
+
+        try (Connection conn = DBUtil.provideConnection()) {
+
+            PreparedStatement ps = conn.prepareStatement(
+                    "SELECT * FROM course WHERE cname LIKE ? ORDER BY cname");
+
+            ps.setString(1, "%" + keyword + "%");
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                int cid = rs.getInt("cid");
+                String cname = rs.getString("cname");
+                int batch = rs.getInt("batch");
+                int fee = rs.getInt("fee");
+                int totalseats = rs.getInt("totalseats");
+
+                Course course = new Course(cid, cname, batch, fee, totalseats);
+
+                courseList.add(course);
+            }
+
+        } catch (SQLException e) {
+            throw new CourseException(e.getMessage());
+        }
+
+        if (courseList.isEmpty()) {
+            throw new CourseException("No courses found matching: " + keyword);
+        }
+
+        return courseList;
+    }
 
 }
