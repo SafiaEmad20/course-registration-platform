@@ -9,9 +9,7 @@ import com.project.bean.Student;
 
 public class RegisterStudentUseCase {
 
-    public static void main(String[] args) {
-
-        Scanner sc = new Scanner(System.in);
+    public static void register(Scanner sc) {
 
         System.out.println("Enter student name:");
         String sname = sc.nextLine().trim();
