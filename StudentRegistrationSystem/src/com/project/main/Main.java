@@ -144,67 +144,50 @@ public class Main {
 					int choice = sc.nextInt();
 					
 					
-					if (choice==1) {
-						
-						while(userSelect!=3) {
-							
-							com.project.bean.Student student = StudentLoginUseCase.login();
-
-                              if (student != null) {
-                              int roll = student.getRoll();
-								
-								while(userSelect!=3){
-									System.out.println("Please select one of the options below");
-									System.out.println("---------------------------------------");
-									System.out.println("1. Update profile details");
-									System.out.println("2. Show all courses and availability");
-									System.out.println("3. Search for a course");
-									System.out.println("4. Enroll in a course");
-									System.out.println("5. View my enrolled courses");
-									System.out.println("6. Withdraw from a course");
-									System.out.println("7. Join the waiting list of a full course");
-									System.out.println("8. Exit");
-									
-									int y = sc.nextInt();
-									
-									switch (y) {
-									case 1: UpdateStudentUseCase.main(null);
-										
-										break;
-
-									case 2: GetSeatAvailabilityUseCase.main(null);
-										break;
-									case 3:  SearchCourseUseCase.main(null);
-										break;	
-									case 4: EnrollInCourseUseCase.main(null);
-										break;
-									case 5: ViewMyCoursesUseCase.main(null);
-										break;
-									case 6: WithdrawStudentUseCase.main(null);
-									break;
-
-									case 7: JoinWaitingListUseCase.main(null);
-									break;
-
-								case 8: userSelect=3;
-									System.out.println("Thank you!");
-									break;
-									
-									default: System.out.println("Invalid selection");
-										break;
-									}
-								}
-								
-								
-							} 
-							
-						}
 					
+if (choice == 1) {
+
+    if (StudentLoginUseCase.main(null) == true) {
+
+        while (userSelect != 3) {
+
+            System.out.println("Please select one of the options below");
+            System.out.println("---------------------------------------");
+            System.out.println("1. Update profile details");
+            System.out.println("2. Show all courses and availability");
+            System.out.println("3. Exit");
+
+            int y = sc.nextInt();
+
+            switch (y) {
+
+                case 1:
+                    UpdateStudentUseCase.main(null);
+                    break;
+
+                case 2:
+                    GetSeatAvailabilityUseCase.main(null);
+                    break;
+
+                case 3:
+                    userSelect = 3;
+                    System.out.println("Thank you!");
+                    break;
+
+                default:
+                    System.out.println("Invalid selection");
+                    break;
+            }
+        }
+    }
+}
+
 					} else if(choice==2) {
-						
-						RegisterStudentUseCase.main(null);
-						
-					}  else if(choice==3){
+
+    sc.nextLine();
+    RegisterStudentUseCase.main(null);
+
+}  else if(choice==3){
 						
 						System.out.println("Thank you!");
 						userSelect = 3;
