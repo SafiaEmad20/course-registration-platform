@@ -1,20 +1,18 @@
 package com.project.Dao;
 
 
+import com.project.bean.Course;
+import com.project.bean.CourseDTO;
+import com.project.bean.StudentDTO;
+import com.project.exceptions.CourseException;
+import com.project.exceptions.StudentException;
+import com.project.utility.DBUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.project.bean.Course;
-import com.project.bean.CourseDTO;
-import com.project.bean.Student;
-import com.project.bean.StudentDTO;
-import com.project.exceptions.CourseException;
-import com.project.exceptions.StudentException;
-import com.project.utility.DBUtil;
 
 public class CourseDaoImpl implements CourseDao {
 
