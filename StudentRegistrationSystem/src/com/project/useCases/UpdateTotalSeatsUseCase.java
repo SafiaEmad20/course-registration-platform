@@ -32,8 +32,7 @@ public class UpdateTotalSeatsUseCase {
 			try {
 				result = dao.updateTotalSeats(cname, batch, seats);
 			} catch (CourseException e) {
-				
-				e.getMessage();
+				result = e.getMessage();
 			}
 			
 			
