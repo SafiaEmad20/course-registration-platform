@@ -185,7 +185,7 @@ if (choice == 1) {
 					} else if(choice==2) {
 
     sc.nextLine();
-    RegisterStudentUseCase.main(null);
+RegisterStudentUseCase.register(sc);
 
 }  else if(choice==3){
 						
