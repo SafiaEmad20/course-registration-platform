@@ -1,6 +1,4 @@
 package com.project.Dao;
-
-
 import com.project.bean.Course;
 import com.project.bean.CourseDTO;
 import com.project.bean.StudentDTO;
@@ -11,9 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
-
 public class CourseDaoImpl implements CourseDao {
 
 	@Override
@@ -56,18 +54,12 @@ public class CourseDaoImpl implements CourseDao {
 		
 		try (Connection conn= DBUtil.provideConnection()){
 			
-			PreparedStatement ps= conn.prepareStatement("select count(*) from course where cname=?");
-			
-			
+			PreparedStatement ps = conn.prepareStatement("select max(batch) from course where cname=?");
 			ps.setString(1, cname);
-			
-			ResultSet rs= ps.executeQuery();
-			
-			if(rs.next()) {
-				
-				lastbatch = rs.getInt("count(*)");
-					
-			}
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				lastbatch = rs.getInt(1);   
+				}
 			
 			
 			
@@ -112,36 +104,42 @@ public class CourseDaoImpl implements CourseDao {
 		return message;
 	}
 	
-
 	@Override
 	public String deleteCourse(String cname, int batch) {
-		
-		String message = "Batch "+ batch +" for "+cname+" course not found.";
-		
-		
-		try (Connection conn = DBUtil.provideConnection()){
-			
-			PreparedStatement ps =
-					conn.prepareStatement("DELETE FROM course where cname = ? AND batch = ?");
-					
-			
-				ps.setString(1, cname);
-				ps.setInt(2, batch);
-				
-			int x = ps.executeUpdate();
-			
-			if(x>0) {
-				message = "Course "+cname+" batch "+batch+" has been deleted";
-			}
-					
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			message = "Database error while deleting course. Please try again.";
-		}
-		
-		return message;
-	}
+		String message = "Batch " + batch + " for " + cname + " course not found.";
+		try (Connection conn = DBUtil.provideConnection()) {
+
+        // Check for enrolled students first
+        PreparedStatement psCheck = conn.prepareStatement(
+            "SELECT COUNT(cs.roll) FROM course c JOIN course_student cs ON c.cid = cs.cid " +
+            "WHERE c.cname = ? AND c.batch = ?");
+        psCheck.setString(1, cname);
+        psCheck.setInt(2, batch);
+        ResultSet rs = psCheck.executeQuery();
+
+        if (rs.next() && rs.getInt(1) > 0) {
+            return "Cannot delete " + cname + " batch " + batch + ": " + rs.getInt(1)
+                 + " student(s) are still enrolled. Withdraw or reassign them first.";
+        }
+
+        PreparedStatement ps = conn.prepareStatement(
+            "DELETE FROM course where cname = ? AND batch = ?");
+        ps.setString(1, cname);
+        ps.setInt(2, batch);
+
+        int x = ps.executeUpdate();
+        if (x > 0) {
+            message = "Course " + cname + " batch " + batch + " has been deleted";
+        }
+		} catch (SQLIntegrityConstraintViolationException e) {
+			message = "Cannot delete " + cname + " batch " + batch + ": students are still enrolled in it.";
+			} catch (SQLException e) {
+        e.printStackTrace();
+        message = "Database error while deleting course. Please try again.";
+    }
+
+    return message;
+}
 	@Override
 	public List<Course> getCourseDetails(String cname) throws CourseException {
 
